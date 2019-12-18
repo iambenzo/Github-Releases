@@ -1,0 +1,12 @@
+[package]
+name = "ghr"
+version = "0.1.0"
+authors = ["Ben Burbage <iambenzo@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = "2.33.0"
+indicatif = "0.13.0"
+mrq = "0.1.0"
