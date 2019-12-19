@@ -1,16 +1,10 @@
-use std::cmp::min;
 use std::collections::HashMap;
 use std::io::Error;
-use std::thread;
-use std::time::Duration;
 use std::fs::File;
 use std::io::Read;
 use std::io::copy;
 
-
 use indicatif::{ProgressBar, ProgressStyle};
-// use reqwest::{Client, Url, UrlError};
-// use reqwest::header::{ContentType,ContentLength};
 use mrq;
 
 type Headers = HashMap<String, String>;
@@ -63,9 +57,9 @@ fn save_to_file(contents: &mut Vec<u8>, fname: &str) -> Result<(), std::io::Erro
 
 }
 
-pub fn download_file(repo: &str) -> Result<(), Box<std::error::Error>> {
+pub fn download_file(repo: &str) -> Result<(), Box<dyn std::error::Error>> {
     let mut downloaded = 0;
-    // let total_size = 231231231;
+
     let total_size: u64 = {
         if let Some(size) = get_headers(&repo).unwrap().get("Content-Length") {
             size.parse::<u64>().unwrap_or(0)
@@ -79,53 +73,35 @@ pub fn download_file(repo: &str) -> Result<(), Box<std::error::Error>> {
         false => 1024usize,
     };
 
-    // let bar = create_progress_bar(false, &repo, total_size);
+    let bar = create_progress_bar(false, &repo, total_size);
 
-    let bar = ProgressBar::new(total_size);
-    bar.set_message(&repo);
-    bar.set_style(ProgressStyle::default_bar().template(
-        "{msg:.green} [{elapsed_precise}] {bar:40.cyan/blue} {bytes}/{total_bytes} ({eta})",
-    ));
+    let mut resp = mrq::get(repo)
+        .with_header("Accept", "*/*")
+        .with_header("User-Agent", "ua")
+        .with_timeout(30)
+        .send()?;
 
-    while downloaded < total_size {
-        let new = min(downloaded + chunk_size as u64, total_size);
-        downloaded = new;
-        bar.set_position(new);
-        thread::sleep(Duration::from_millis(12));
+    let mut buf = Vec::new();
+
+    loop {
+        let mut buffer = vec![0; chunk_size];
+        let bcount = resp.body.read(&mut buffer[..]).unwrap();
+        downloaded += bcount;
+        buffer.truncate(bcount);
+        if !buffer.is_empty() {
+            buf.extend(buffer.into_boxed_slice().into_vec().iter().cloned());
+            bar.set_position(downloaded as u64);
+        } else {
+            break;
+        }
+        if Some(downloaded) == Some(total_size as usize) {
+            break;
+        }
     }
-
-    // let mut resp = mrq::get(repo)
-    //     .with_header("Accept", "*/*")
-    //     .with_header("User-Agent", "ua")
-    //     .with_timeout(30)
-    //     .send()?;
-
-    // let mut buf = Vec::new();
-
-    // while downloaded < total_size {
-        
-    // }
-
-    // let mut cnt = 0;
-    // loop {
-    //     let mut buffer = vec![0; chunk_size];
-    //     let bcount = resp.body.read(&mut buffer[..]).unwrap();
-    //     cnt += bcount;
-    //     buffer.truncate(bcount);
-    //     if !buffer.is_empty() {
-    //         buf.extend(buffer.into_boxed_slice().into_vec().iter().cloned());
-    //         bar.set_position(cnt as u64);
-    //     } else {
-    //         break;
-    //     }
-    //     if Some(cnt) == Some(total_size as usize) {
-    //         break;
-    //     }
-    // }
 
     bar.finish();
 
-    // save_to_file(&mut buf, "test")?;
+    save_to_file(&mut buf, "test")?;
 
     Ok(())
 }
