@@ -1,10 +1,7 @@
+use reqwest;
 mod gh_release;
 
-use serde;
-use serde_derive;
-use reqwest;
-
-pub fn get_release_info(repo: &str) -> Result<String, reqwest::Error> {
+pub fn get_download_url(repo: &str) -> Result<String, reqwest::Error> {
     let url = format!("https://api.github.com/repos/{}/releases/latest", repo);
     // println!("Request URL: {}", url);
 
@@ -14,7 +11,7 @@ pub fn get_release_info(repo: &str) -> Result<String, reqwest::Error> {
     // println!("{:?}", latest_release);
 
     let download_url = &latest_release.zipball_url;
-    println!("Download URL: {}", download_url);
+    // println!("Download URL: {}", download_url);
 
     Ok(download_url.to_string())
 }

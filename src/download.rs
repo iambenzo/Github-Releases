@@ -1,5 +1,3 @@
-use std::fs::File;
-use std::io::copy;
 use std::io::Read;
 
 use failure::format_err;
@@ -28,27 +26,15 @@ fn create_progress_bar(msg: &str, length: u64) -> ProgressBar {
     bar
 }
 
-// fn parse_url(url: &str) -> Result<Url, UrlError> {
-//     match Url::parse(url) {
-//         Ok(url) => Ok(url),
-//         Err(error) if error == UrlError::RelativeUrlWithoutBase => {
-//             let url_with_base = format!("{}{}", "http://", url);
-//             Url::parse(url_with_base.as_str())
-//         }
-//         Err(error) => Err(error),
-//     }
-// }
-
-fn save_to_file(contents: &mut Vec<u8>, fname: &str) -> Result<(), Error> {
-    let mut file = File::create(fname).unwrap();
-    copy(&mut contents.as_slice(), &mut file).unwrap();
-    Ok(())
-}
-
-pub fn download_file(repo: &str) -> Result<(String, usize), Error> {
-    // let mut download_location: PathBuf = PathBuf::from(r"C:\Users\benbu\Documents\Git\ghr\");
+pub fn download_file(repo: &str, url: &str, file_name: &str) -> Result<(String, usize), Error> {
     let mut download_location: PathBuf = PathBuf::from(r"./");
-    download_location.push("test.zip");
+    download_location.push(Path::new(repo));
+
+    if !download_location.exists() {
+        fs::create_dir_all(&download_location)?;
+    }
+
+    download_location.push(file_name);
 
     println!("Download Location: {}", download_location.to_str().unwrap());
 
@@ -58,7 +44,7 @@ pub fn download_file(repo: &str) -> Result<(String, usize), Error> {
     }
 
     let client = reqwest::Client::new();
-    let mut response = client.get(repo).send()?;
+    let mut response = client.get(url).send()?;
 
     if response.status().is_success() {
         let total_size: u64 = response
@@ -98,12 +84,9 @@ pub fn download_file(repo: &str) -> Result<(String, usize), Error> {
         let mut disk_file = fs::File::create(&download_location)?;
         let size_on_disk = disk_file.write(&buffer)?;
 
-        // save_to_file(&mut buffer, "test.zip")?;
-
         progress_bar.finish();
 
         Ok((format!("{}", repo), size_on_disk))
-        // Ok((format!("{}", repo), downloaded))
     } else {
         Err(format_err!("No response recieved from server."))
     }

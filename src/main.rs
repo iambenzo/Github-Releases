@@ -1,9 +1,6 @@
 extern crate clap;
 use clap::{App, Arg, SubCommand};
 
-mod download;
-mod github;
-
 fn main() {
     let matches = App::new("GitHub Releases (GHR)")
         .version("0.1.0")
@@ -27,7 +24,7 @@ fn main() {
         let repo = matches.value_of("repo").unwrap();
         println!("Downloading {}", &repo);
         // if let Err(e) = download::download_file(&repo) {
-        if let Err(e) = github::get_release_info(&repo) {
+        if let Err(e) = ghr::install(&repo) {
             eprintln!("Application error: {}", e);
             std::process::exit(1);
         }

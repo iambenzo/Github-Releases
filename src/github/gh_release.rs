@@ -1,4 +1,3 @@
-use serde;
 use serde_derive;
 
 #[derive(Default, Debug, Clone, PartialEq, serde_derive::Serialize, serde_derive::Deserialize)]
