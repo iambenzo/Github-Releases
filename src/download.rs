@@ -46,8 +46,11 @@ fn save_to_file(contents: &mut Vec<u8>, fname: &str) -> Result<(), Error> {
 }
 
 pub fn download_file(repo: &str) -> Result<(String, usize), Error> {
-    let mut download_location: PathBuf = PathBuf::from("C:\\Users\\benbu\\Documents\\Git\\ghr");
-    download_location.push(repo);
+    // let mut download_location: PathBuf = PathBuf::from(r"C:\Users\benbu\Documents\Git\ghr\");
+    let mut download_location: PathBuf = PathBuf::from(r"./");
+    download_location.push("test.zip");
+
+    println!("Download Location: {}", download_location.to_str().unwrap());
 
     if download_location.exists() {
         println!("File already exists, skipping download.");
@@ -92,15 +95,15 @@ pub fn download_file(repo: &str) -> Result<(String, usize), Error> {
             }
         }
 
-        // let mut disk_file = fs::File::create(&download_location)?;
-        // let size_on_disk = disk_file.write(&buffer)?;
+        let mut disk_file = fs::File::create(&download_location)?;
+        let size_on_disk = disk_file.write(&buffer)?;
 
-        save_to_file(&mut buffer, "test.zip")?;
+        // save_to_file(&mut buffer, "test.zip")?;
 
         progress_bar.finish();
 
-        // Ok((format!("{}", repo), size_on_disk))
-        Ok((format!("{}", repo), downloaded))
+        Ok((format!("{}", repo), size_on_disk))
+        // Ok((format!("{}", repo), downloaded))
     } else {
         Err(format_err!("No response recieved from server."))
     }
