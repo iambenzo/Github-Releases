@@ -2,6 +2,7 @@ extern crate clap;
 use clap::{App, Arg, SubCommand};
 
 mod download;
+mod github;
 
 fn main() {
     let matches = App::new("GitHub Releases (GHR)")
@@ -25,7 +26,8 @@ fn main() {
     if let Some(matches) = matches.subcommand_matches("download") {
         let repo = matches.value_of("repo").unwrap();
         println!("Downloading {}", &repo);
-        if let Err(e) = download::download_file(&repo) {
+        // if let Err(e) = download::download_file(&repo) {
+        if let Err(e) = github::get_release_info(&repo) {
             eprintln!("Application error: {}", e);
             std::process::exit(1);
         }

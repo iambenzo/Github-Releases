@@ -1,22 +1,25 @@
+use serde;
+use serde_derive;
+
 #[derive(Default, Debug, Clone, PartialEq, serde_derive::Serialize, serde_derive::Deserialize)]
-struct Release {
+pub struct Release {
     url: String,
     assets_url: String,
     upload_url: String,
     html_url: String,
-    id: i64,
+    pub id: i64,
     node_id: String,
-    tag_name: String,
+    pub tag_name: String,
     target_commitish: String,
-    name: String,
+    pub name: String,
     draft: bool,
     author: Author,
     prerelease: bool,
-    created_at: String,
-    published_at: String,
+    pub created_at: String,
+    pub published_at: String,
     assets: Vec<Asset>,
-    tarball_url: String,
-    zipball_url: String,
+    pub tarball_url: String,
+    pub zipball_url: String,
     body: String,
 }
 
