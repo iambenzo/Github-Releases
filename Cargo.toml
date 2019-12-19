@@ -9,4 +9,5 @@ edition = "2018"
 [dependencies]
 clap = "2.33.0"
 indicatif = "0.13.0"
-mrq = "0.1.0"
+reqwest = "0.9.24"
+failure = "0.1.6"

@@ -1,31 +1,20 @@
-use std::collections::HashMap;
-use std::io::Error;
 use std::fs::File;
-use std::io::Read;
 use std::io::copy;
+use std::io::Read;
+
+use failure::format_err;
+use failure::Error;
 
 use indicatif::{ProgressBar, ProgressStyle};
-use mrq;
 
-type Headers = HashMap<String, String>;
+use std::fs;
+use std::io::prelude::*;
+use std::path::{Path, PathBuf};
 
-fn get_headers(url: &str) -> Result<Headers, Error> {
-    let req = mrq::head(url)
-        .with_header("Accept", "*/*")
-        .with_header("User-Agent", "ua")
-        .with_timeout(30)
-        .send()?;
-
-    Ok(req.headers)
-}
-
-fn create_progress_bar(quiet_mode: bool, msg: &str, length: u64) -> ProgressBar {
-    let bar = match quiet_mode {
-        true => ProgressBar::hidden(),
-        false => match length > 0 {
-            true => ProgressBar::new(length),
-            false => ProgressBar::new_spinner(),
-        },
+fn create_progress_bar(msg: &str, length: u64) -> ProgressBar {
+    let bar = match length > 0 {
+        true => ProgressBar::new(length),
+        false => ProgressBar::new_spinner(),
     };
 
     bar.set_message(msg);
@@ -50,58 +39,69 @@ fn create_progress_bar(quiet_mode: bool, msg: &str, length: u64) -> ProgressBar 
 //     }
 // }
 
-fn save_to_file(contents: &mut Vec<u8>, fname: &str) -> Result<(), std::io::Error> {
+fn save_to_file(contents: &mut Vec<u8>, fname: &str) -> Result<(), Error> {
     let mut file = File::create(fname).unwrap();
     copy(&mut contents.as_slice(), &mut file).unwrap();
     Ok(())
-
 }
 
-pub fn download_file(repo: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let mut downloaded = 0;
+pub fn download_file(repo: &str) -> Result<(String, usize), Error> {
+    let mut download_location: PathBuf = PathBuf::from("C:\\Users\\benbu\\Documents\\Git\\ghr");
+    download_location.push(repo);
 
-    let total_size: u64 = {
-        if let Some(size) = get_headers(&repo).unwrap().get("Content-Length") {
-            size.parse::<u64>().unwrap_or(0)
-        } else {
-            0u64
-        }
-    };
-
-    let chunk_size = match total_size > 0 {
-        true => total_size as usize / 99,
-        false => 1024usize,
-    };
-
-    let bar = create_progress_bar(false, &repo, total_size);
-
-    let mut resp = mrq::get(repo)
-        .with_header("Accept", "*/*")
-        .with_header("User-Agent", "ua")
-        .with_timeout(30)
-        .send()?;
-
-    let mut buf = Vec::new();
-
-    loop {
-        let mut buffer = vec![0; chunk_size];
-        let bcount = resp.body.read(&mut buffer[..]).unwrap();
-        downloaded += bcount;
-        buffer.truncate(bcount);
-        if !buffer.is_empty() {
-            buf.extend(buffer.into_boxed_slice().into_vec().iter().cloned());
-            bar.set_position(downloaded as u64);
-        } else {
-            break;
-        }
-        if Some(downloaded) == Some(total_size as usize) {
-            break;
-        }
+    if download_location.exists() {
+        println!("File already exists, skipping download.");
+        return Ok((format!("{}", repo), 0));
     }
 
-    bar.finish();
+    let client = reqwest::Client::new();
+    let mut response = client.get(repo).send()?;
 
-    save_to_file(&mut buf, "test")?;
+    if response.status().is_success() {
+        let total_size: u64 = response
+            .headers()
+            .get(reqwest::header::CONTENT_LENGTH)
+            .and_then(|l| l.to_str().ok())
+            .and_then(|l| l.parse().ok())
+            .unwrap_or(0);
 
-    Ok(())
+        let chunk_size = match total_size > 0u64 {
+            true => total_size as usize / 99,
+            false => 1024usize,
+        };
+
+        let progress_bar = create_progress_bar(&repo, total_size);
+
+        let mut buffer: Vec<u8> = Vec::new();
+        let mut downloaded = 0;
+
+        loop {
+            let mut small_buffer = vec![0; chunk_size];
+            let small_buffer_read = response.read(&mut small_buffer[..])?;
+            small_buffer.truncate(small_buffer_read);
+
+            match small_buffer.is_empty() {
+                true => break,
+                false => {
+                    buffer.extend(small_buffer);
+                    downloaded += small_buffer_read;
+                    progress_bar.set_position(downloaded as u64);
+                    // progress_bar.inc(small_buffer_read as u64);
+                    // progress_bar.set_message(&format!("{} : {} / {}", repo, downloaded, total_size));
+                }
+            }
+        }
+
+        // let mut disk_file = fs::File::create(&download_location)?;
+        // let size_on_disk = disk_file.write(&buffer)?;
+
+        save_to_file(&mut buffer, "test.zip")?;
+
+        progress_bar.finish();
+
+        // Ok((format!("{}", repo), size_on_disk))
+        Ok((format!("{}", repo), downloaded))
+    } else {
+        Err(format_err!("No response recieved from server."))
+    }
 }
