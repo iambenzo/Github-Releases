@@ -35,7 +35,7 @@ pub fn download_file(repo: &str, url: &str, file_name: &str) -> Result<(String, 
 
     download_location.push(file_name);
 
-    println!("Download Location: {}", download_location.to_str().unwrap());
+    // println!("Download Location: {}", download_location.to_str().unwrap());
 
     if download_location.exists() {
         println!("File already exists, skipping download.");

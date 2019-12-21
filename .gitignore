@@ -1,2 +1,4 @@
 /target
 **/*.rs.bk
+/gh-releases
+sources.json

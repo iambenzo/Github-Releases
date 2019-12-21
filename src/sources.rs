@@ -34,7 +34,7 @@ impl Sources {
     }
 
     pub fn save(&self) -> Result<(), Error> {
-        println!("Saving sources...");
+        // println!("Saving sources...");
         let output = serde_json::to_string(self)?;
         let output_bytes = output.as_bytes();
         let mut sources_file = fs::File::create("sources.json")?;
@@ -45,7 +45,8 @@ impl Sources {
         }
     }
 
-    pub fn list(&self) -> Result<Vec<String>, Error> {
+    pub fn list(&mut self) -> Result<Vec<String>, Error> {
+        self.load();
         let mut repos: Vec<String> = Vec::new();
         self.sources
             .keys()

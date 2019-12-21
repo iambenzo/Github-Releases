@@ -28,12 +28,20 @@ pub fn install(repo: &str) -> Result<(), Error> {
     sources.save()?;
     
     let file_name = util::gen_filename(repo, &release_info.zipball_url);
-    
+
     if let Err(e) = download::download_file(repo, &release_info.zipball_url, &file_name) {
         return Err(format_err!("{}", e));
     } else {
         return Ok(())
     };
+}
 
-    // Ok(())
+pub fn list() -> Result<(), Error> {
+    let mut sources = sources::Sources::new();
+    let repos = sources.list()?;
+    for repo in repos.iter() {
+        println!("\t{}", repo);
+    }
+    Ok(())
+
 }
