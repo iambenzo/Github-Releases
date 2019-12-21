@@ -1,13 +1,12 @@
 use std::io::Read;
-
-use failure::format_err;
-use failure::Error;
-
-use indicatif::{ProgressBar, ProgressStyle};
-
 use std::fs;
 use std::io::prelude::*;
 use std::path::{Path, PathBuf};
+
+use failure::format_err;
+use failure::Error;
+use indicatif::{ProgressBar, ProgressStyle};
+
 
 fn create_progress_bar(msg: &str, length: u64) -> ProgressBar {
     let bar = match length > 0 {
@@ -27,7 +26,7 @@ fn create_progress_bar(msg: &str, length: u64) -> ProgressBar {
 }
 
 pub fn download_file(repo: &str, url: &str, file_name: &str) -> Result<(String, usize), Error> {
-    let mut download_location: PathBuf = PathBuf::from(r"./");
+    let mut download_location: PathBuf = PathBuf::from(r"./gh-releases/");
     download_location.push(Path::new(repo));
 
     if !download_location.exists() {

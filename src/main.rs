@@ -24,7 +24,7 @@ fn main() {
         let repo = matches.value_of("repo").unwrap();
         // println!("Downloading {}", &repo);
         if let Err(e) = ghr::install(&repo) {
-            eprintln!("Application error: {}", e);
+            eprintln!("{}", e);
             std::process::exit(1);
         }
     }

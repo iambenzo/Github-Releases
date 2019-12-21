@@ -8,11 +8,5 @@ pub fn get_release_info(repo: &str) -> Result<gh_release::Release, reqwest::Erro
     let mut response = reqwest::get(&url)?;
 
     let latest_release: gh_release::Release = response.json()?;
-    // println!("{:?}", latest_release);
-
-    // let download_url = &latest_release.zipball_url;
-    // println!("Download URL: {}", download_url);
-
-    // Ok(download_url.to_string())
     Ok(latest_release)
 }
