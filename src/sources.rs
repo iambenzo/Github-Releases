@@ -13,28 +13,24 @@ pub struct Sources {
 }
 
 impl Sources {
-    fn load_data(&mut self) -> Result<(), Error> {
-        let sources_file = fs::read_to_string("sources.json")?;
-        let json: Sources = serde_json::from_str(&sources_file)?;
-        self.sources = json.sources;
-        Ok(())
-    }
-
-    fn load(&mut self) {
-        if self.sources.is_empty() {
-            if let Err(_e) = self.load_data() {
-                self.sources = HashMap::new();
-            }
-        }
-    }
-
     pub fn new() -> Sources {
-        let sources: HashMap<String, Source> = HashMap::new();
+        let sources: HashMap<String, Source>;
+        let source_json = || -> Result<HashMap<String, Source>, Error> {
+            let sources_file = fs::read_to_string("sources.json")?;
+            let json: Sources = serde_json::from_str(&sources_file)?;
+            Ok(json.sources)
+        };
+
+        if let Err(_e) = source_json() {
+            sources = HashMap::new();
+        } else {
+            sources = source_json().unwrap();
+        }
+
         Sources { sources }
     }
 
     pub fn save(&self) -> Result<(), Error> {
-        // println!("Saving sources...");
         let output = serde_json::to_string(self)?;
         let output_bytes = output.as_bytes();
         let mut sources_file = fs::File::create("sources.json")?;
@@ -46,7 +42,6 @@ impl Sources {
     }
 
     pub fn list(&mut self) -> Result<Vec<String>, Error> {
-        self.load();
         let mut repos: Vec<String> = Vec::new();
         self.sources
             .keys()
@@ -55,7 +50,6 @@ impl Sources {
     }
 
     pub fn add_source(&mut self, repo: &str, source: Source) -> Result<(), Error> {
-        self.load();
         match self.sources.contains_key(repo) {
             true => Err(format_err!("Source already exists")),
             false => {
@@ -66,7 +60,6 @@ impl Sources {
     }
 
     pub fn contains(&mut self, repo: &str) -> bool {
-        self.load();
         self.sources.contains_key(repo)
     }
 

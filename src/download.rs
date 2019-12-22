@@ -1,12 +1,11 @@
-use std::io::Read;
 use std::fs;
 use std::io::prelude::*;
+use std::io::Read;
 use std::path::{Path, PathBuf};
 
 use failure::format_err;
 use failure::Error;
 use indicatif::{ProgressBar, ProgressStyle};
-
 
 fn create_progress_bar(msg: &str, length: u64) -> ProgressBar {
     let bar = match length > 0 {

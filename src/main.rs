@@ -22,13 +22,13 @@ fn main() {
             SubCommand::with_name("update")
                 .about("Checks and downloads updates for each tracked repository.")
                 .version("0.1.0")
-                .author("Ben Burbage <ben@iambenzo.com>")
+                .author("Ben Burbage <ben@iambenzo.com>"),
         )
         .subcommand(
             SubCommand::with_name("list")
                 .about("Lists tracked repositories.")
                 .version("0.1.0")
-                .author("Ben Burbage <ben@iambenzo.com>")
+                .author("Ben Burbage <ben@iambenzo.com>"),
         )
         .get_matches();
 
