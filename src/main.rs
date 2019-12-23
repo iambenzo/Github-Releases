@@ -13,7 +13,7 @@ fn main() {
                 .author("Ben Burbage <ben@iambenzo.com>")
                 .arg(
                     Arg::with_name("repo")
-                        .help("GitHub Repository in quotes \"iambenzo\\vscode-theme-nyx\"")
+                        .help("GitHub Repository in quotes e.g. \"iambenzo\\vscode-theme-nyx\"")
                         .index(1)
                         .required(true),
                 )
@@ -60,6 +60,10 @@ fn main() {
 
     if let Some(_matches) = matches.subcommand_matches("update") {
         println!("Updating sources!");
+        if let Err(e) = ghr::update() {
+            eprintln!("{}", e);
+            std::process::exit(1);
+        }
     }
 
     if let Some(_matches) = matches.subcommand_matches("list") {

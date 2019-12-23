@@ -6,6 +6,7 @@ use failure::format_err;
 use failure::Error;
 use serde_derive;
 use serde_json;
+use chrono::DateTime;
 
 #[derive(Default, Debug, Clone, PartialEq, serde_derive::Serialize, serde_derive::Deserialize)]
 pub struct Sources {
@@ -102,6 +103,12 @@ impl Source {
 
     pub fn update_latest_release(&mut self, release: ReleaseInfo) {
         self.latest_release = release;
+    }
+
+    pub fn is_newer(&self, old_source: &Source) -> Result<bool, Error> {
+        let self_pub_date = DateTime::parse_from_rfc3339(&self.latest_release.published_at)?;
+        let old_pub_date = DateTime::parse_from_rfc3339(&old_source.latest_release.published_at)?;
+        Ok(self_pub_date > old_pub_date)
     }
 }
 

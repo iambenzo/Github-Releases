@@ -13,7 +13,7 @@ pub fn install(repo: &str, pre_release: bool) -> Result<(), Error> {
         return Err(format_err!("Repository already exists.\nTry `ghr update`"));
     }
 
-    let release_info  = {
+    let release_info = {
         if pre_release {
             github::get_pre_release_info(repo)?
         } else {
@@ -33,6 +33,27 @@ pub fn install(repo: &str, pre_release: bool) -> Result<(), Error> {
     } else {
         return Ok(());
     };
+}
+
+pub fn update() -> Result<(), Error> {
+    let repos = sources::Sources::new();
+    for (repo, source) in repos.sources.iter() {
+        let latest_source = {
+            if source.pre_release {
+                github::get_pre_release_info(&repo)?
+            } else {
+                github::get_release_info(&repo)?
+            }
+        };
+        if latest_source.is_newer(source)? {
+            println!("There's an update for {}", repo);
+            //Delete old release from fs
+            // Download latest release
+            // Run update script
+            // Update source's latest release
+        }
+    }
+    Ok(())
 }
 
 pub fn list() -> Result<(), Error> {
