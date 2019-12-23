@@ -13,9 +13,17 @@ fn main() {
                 .author("Ben Burbage <ben@iambenzo.com>")
                 .arg(
                     Arg::with_name("repo")
-                        .help("location of file")
+                        .help("GitHub Repository in quotes \"iambenzo\\vscode-theme-nyx\"")
                         .index(1)
                         .required(true),
+                )
+                .arg(
+                    Arg::with_name("pre-release")
+                        .help("Check this repo for pre-release content too")
+                        .short("p")
+                        .long("pre-release")
+                        .multiple(false)
+                        .required(false),
                 ),
         )
         .subcommand(
@@ -33,9 +41,18 @@ fn main() {
         .get_matches();
 
     if let Some(matches) = matches.subcommand_matches("install") {
+        let pre_release = {
+            if matches.occurrences_of("pre-release") > 0 {
+                true
+            } else {
+                false
+            }
+        };
+        // println!("Pre-release used: {}", &pre_release);
+
         let repo = matches.value_of("repo").unwrap();
         // println!("Downloading {}", &repo);
-        if let Err(e) = ghr::install(&repo) {
+        if let Err(e) = ghr::install(&repo, pre_release) {
             eprintln!("{}", e);
             std::process::exit(1);
         }

@@ -2,7 +2,7 @@ use serde_derive;
 use crate::sources::{Source, ReleaseInfo, Sourceable};
 
 #[derive(Default, Debug, Clone, PartialEq, serde_derive::Serialize, serde_derive::Deserialize)]
-pub struct Release {
+pub struct PreRelease {
     url: String,
     assets_url: String,
     upload_url: String,
@@ -23,7 +23,7 @@ pub struct Release {
     body: String,
 }
 
-impl Sourceable for Release {
+impl Sourceable for PreRelease {
     fn to_source(&self) -> Source {
         let info = ReleaseInfo::new(
             &self.tag_name,
@@ -67,7 +67,7 @@ struct Asset {
     id: i64,
     node_id: String,
     name: String,
-    label: String,
+    label: ::serde_json::Value,
     uploader: Uploader,
     content_type: String,
     state: String,

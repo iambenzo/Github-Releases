@@ -78,18 +78,24 @@ impl Sources {
 pub struct Source {
     pub install_command: String,
     pub update_command: String,
+    pub remove_command: String,
+    pub pre_release: bool,
     pub latest_release: ReleaseInfo,
 }
 
 impl Source {
     pub fn new(
-        install_command: String,
-        update_command: String,
+        install_command: &str,
+        update_command: &str,
+        remove_command: &str,
+        pre_release: &bool,
         latest_release: ReleaseInfo,
     ) -> Source {
         Source {
-            install_command,
-            update_command,
+            install_command: install_command.to_string(),
+            update_command: update_command.to_string(),
+            remove_command: remove_command.to_string(),
+            pre_release: *pre_release,
             latest_release,
         }
     }
@@ -103,6 +109,7 @@ impl Source {
 pub struct ReleaseInfo {
     pub tag_name: String,
     pub name: String,
+    pub prerelease: bool,
     pub created_at: String,
     pub published_at: String,
     pub tarball_url: String,
@@ -113,6 +120,7 @@ impl ReleaseInfo {
     pub fn new(
         tag_name: &str,
         name: &str,
+        prerelease: &bool,
         created_at: &str,
         published_at: &str,
         tarball_url: &str,
@@ -121,10 +129,15 @@ impl ReleaseInfo {
         ReleaseInfo {
             tag_name: tag_name.to_string(),
             name: name.to_string(),
+            prerelease: *prerelease,
             created_at: created_at.to_string(),
             published_at: published_at.to_string(),
             tarball_url: tarball_url.to_string(),
             zipball_url: zipball_url.to_string(),
         }
     }
+}
+
+pub trait Sourceable {
+    fn to_source(&self) -> Source;
 }
