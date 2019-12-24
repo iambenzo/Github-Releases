@@ -59,7 +59,7 @@ fn main() {
     }
 
     if let Some(_matches) = matches.subcommand_matches("update") {
-        println!("Updating sources!");
+        // println!("Updating sources!");
         if let Err(e) = ghr::update() {
             eprintln!("{}", e);
             std::process::exit(1);

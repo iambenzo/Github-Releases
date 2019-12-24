@@ -36,24 +36,32 @@ pub fn install(repo: &str, pre_release: bool) -> Result<(), Error> {
 }
 
 pub fn update() -> Result<(), Error> {
-    let repos = sources::Sources::new();
-    for (repo, source) in repos.sources.iter() {
+    let mut repos = sources::Sources::new();
+    let current_sources = repos.clone();
+    for (repo, old_source) in current_sources.sources.iter() {
         let latest_source = {
-            if source.pre_release {
+            if old_source.pre_release {
                 github::get_pre_release_info(&repo)?
             } else {
                 github::get_release_info(&repo)?
             }
         };
-        if latest_source.is_newer(source)? {
-            println!("There's an update for {}", repo);
-            //Delete old release from fs
+        if latest_source.is_newer(old_source)? {
+            // println!("There's an update for {}", repo);
+
+            // Delete old release from fs
+            util::delete_old_release(&repo, &old_source.latest_release.zipball_url)?;
+
             // Download latest release
+            let file_name = util::gen_filename(&repo, &latest_source.latest_release.zipball_url);
+            download::download_file(&repo, &latest_source.latest_release.zipball_url, &file_name)?;
+
             // Run update script
             // Update source's latest release
+            repos.update_latest_release(&repo, latest_source.latest_release)?;
         }
     }
-    Ok(())
+    repos.save()
 }
 
 pub fn list() -> Result<(), Error> {
