@@ -3,49 +3,47 @@ pub mod github;
 pub mod sources;
 pub mod util;
 
+// use std::process::Command;
+
 use failure::format_err;
 use failure::Error;
 
-pub fn install(repo: &str, pre_release: bool) -> Result<(), Error> {
+pub fn install(repo: &str, pre_release: bool, install_command: &str) -> Result<(), Error> {
     let mut sources = sources::Sources::new();
 
     if sources.contains(repo) {
         return Err(format_err!("Repository already exists.\nTry `ghr update`"));
     }
 
-    let release_info = {
-        if pre_release {
-            github::get_pre_release_info(repo)?
-        } else {
-            github::get_release_info(repo)?
-        }
+    let mut release_info = match pre_release {
+        true => github::get_pre_release_info(repo)?,
+        false => github::get_release_info(repo)?
     };
+
+    release_info.install_command = install_command.to_string();
 
     let download_url = &release_info.latest_release.zipball_url.clone();
-    
-    sources.add_source(repo, release_info)?;
-    sources.save()?;
-
     let file_name = util::gen_filename(repo, &download_url);
+    download::download_file(repo, &download_url, &file_name)?;
 
-    if let Err(e) = download::download_file(repo, &download_url, &file_name) {
-        return Err(format_err!("{}", e));
-    } else {
-        return Ok(());
-    };
+    // if &release_info.install_command != "" {
+    //     Command::new(&release_info.install_command).output()?;
+    // }
+
+    sources.add_source(repo, release_info)?;
+    sources.save()
 }
 
 pub fn update() -> Result<(), Error> {
     let mut repos = sources::Sources::new();
     let current_sources = repos.clone();
     for (repo, old_source) in current_sources.sources.iter() {
-        let latest_source = {
-            if old_source.pre_release {
-                github::get_pre_release_info(&repo)?
-            } else {
-                github::get_release_info(&repo)?
-            }
+        
+        let latest_source = match old_source.pre_release {
+            true => github::get_pre_release_info(&repo)?,
+            false => github::get_release_info(&repo)?
         };
+        
         if latest_source.is_newer(old_source)? {
             // println!("There's an update for {}", repo);
 
@@ -56,11 +54,23 @@ pub fn update() -> Result<(), Error> {
             let file_name = util::gen_filename(&repo, &latest_source.latest_release.zipball_url);
             download::download_file(&repo, &latest_source.latest_release.zipball_url, &file_name)?;
 
-            // Run update script
+            // TODO: Run update script
             // Update source's latest release
             repos.update_latest_release(&repo, latest_source.latest_release)?;
         }
     }
+    repos.save()
+}
+
+pub fn remove(repo: &str) -> Result<(), Error> {
+    let mut repos = sources::Sources::new();
+
+    let source = repos.sources.get(repo).unwrap();
+    util::delete_old_release(&repo, &source.latest_release.zipball_url)?;
+
+    // TODO: Run remove script
+
+    repos.remove_source(&repo)?;
     repos.save()
 }
 

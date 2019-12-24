@@ -60,6 +60,18 @@ impl Sources {
         }
     }
 
+    pub fn remove_source(&mut self, repo: &str) -> Result<(), Error> {
+        match self.sources.contains_key(repo) {
+            true => {
+                match self.sources.remove(&repo.to_string()) {
+                    Some(_x) => Ok(()),
+                    None => Err(format_err!("Source not tracked"))
+                }
+            },
+            false => Err(format_err!("Source not tracked"))
+        }
+    }
+
     pub fn contains(&mut self, repo: &str) -> bool {
         self.sources.contains_key(repo)
     }
