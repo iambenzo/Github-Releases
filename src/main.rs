@@ -27,9 +27,27 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("install-script")
-                        .help("Script/Command to use after source has been downloaded.")
+                        .help("Script/Command to use after source has been downloaded. e.g. \"sh install.sh\"")
                         .short("i")
                         .long("install-script")
+                        .takes_value(true)
+                        .multiple(false)
+                        .required(false),
+                )
+                .arg(
+                    Arg::with_name("update-script")
+                        .help("Script/Command to use after source has been updated. e.g. \"sh update.sh\"")
+                        .short("u")
+                        .long("update-script")
+                        .takes_value(true)
+                        .multiple(false)
+                        .required(false),
+                )
+                .arg(
+                    Arg::with_name("remove-script")
+                        .help("Script/Command to remove installed source during removal. e.g. \"sh remove.sh\"")
+                        .short("r")
+                        .long("remove-script")
                         .takes_value(true)
                         .multiple(false)
                         .required(false),
@@ -73,14 +91,30 @@ fn main() {
 
         let install_script = match matches.value_of("install-script") {
             Some(x) => x,
-            None => ""
+            None => "",
+        };
+
+        let update_script = match matches.value_of("update-script") {
+            Some(x) => x,
+            None => "",
+        };
+
+        let remove_script = match matches.value_of("remove-script") {
+            Some(x) => x,
+            None => "",
         };
 
         // println!("install_script: {}", &install_script);
 
         let repo = matches.value_of("repo").unwrap();
         // println!("Downloading {}", &repo);
-        if let Err(e) = ghr::install(&repo, pre_release, install_script) {
+        if let Err(e) = ghr::install(
+            &repo,
+            pre_release,
+            install_script,
+            update_script,
+            remove_script,
+        ) {
             eprintln!("{}", e);
             std::process::exit(1);
         }

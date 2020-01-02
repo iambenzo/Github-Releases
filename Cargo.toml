@@ -1,8 +1,11 @@
 [package]
 name = "ghr"
 version = "0.1.0"
-authors = ["Ben Burbage <iambenzo@users.noreply.github.com>"]
+authors = ["Ben Burbage <ben@iambenzo.com>"]
 edition = "2018"
+repository = "https://github.com/iambenzo/Github-Releases"
+keywords = ["github", "releases", "package", "track"]
+description = "Keep track of public releases on GitHub"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

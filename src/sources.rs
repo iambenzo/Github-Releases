@@ -2,11 +2,11 @@ use std::collections::HashMap;
 use std::fs;
 use std::io::Write;
 
+use chrono::DateTime;
 use failure::format_err;
 use failure::Error;
 use serde_derive;
 use serde_json;
-use chrono::DateTime;
 
 #[derive(Default, Debug, Clone, PartialEq, serde_derive::Serialize, serde_derive::Deserialize)]
 pub struct Sources {
@@ -44,9 +44,13 @@ impl Sources {
 
     pub fn list(&mut self) -> Result<Vec<String>, Error> {
         let mut repos: Vec<String> = Vec::new();
-        self.sources
-            .keys()
-            .for_each(|repo| repos.push(repo.to_string()));
+        self.sources.keys().for_each(|repo| {
+            repos.push(format!(
+                "{} -> {}",
+                repo.to_string(),
+                self.sources.get(repo).unwrap().latest_release.tag_name
+            ))
+        });
         Ok(repos)
     }
 
@@ -62,13 +66,11 @@ impl Sources {
 
     pub fn remove_source(&mut self, repo: &str) -> Result<(), Error> {
         match self.sources.contains_key(repo) {
-            true => {
-                match self.sources.remove(&repo.to_string()) {
-                    Some(_x) => Ok(()),
-                    None => Err(format_err!("Source not tracked"))
-                }
+            true => match self.sources.remove(&repo.to_string()) {
+                Some(_x) => Ok(()),
+                None => Err(format_err!("Source not tracked")),
             },
-            false => Err(format_err!("Source not tracked"))
+            false => Err(format_err!("Source not tracked")),
         }
     }
 

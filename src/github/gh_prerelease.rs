@@ -1,5 +1,5 @@
+use crate::sources::{ReleaseInfo, Source, Sourceable};
 use serde_derive;
-use crate::sources::{Source, ReleaseInfo, Sourceable};
 
 #[derive(Default, Debug, Clone, PartialEq, serde_derive::Serialize, serde_derive::Deserialize)]
 pub struct PreRelease {

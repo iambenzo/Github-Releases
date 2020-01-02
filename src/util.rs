@@ -1,5 +1,5 @@
-use std::path::{Path, PathBuf};
 use std::fs::remove_file;
+use std::path::{Path, PathBuf};
 
 pub fn gen_filename(repo: &str, url: &str) -> String {
     let app_name = repo.split("/").last().unwrap();
