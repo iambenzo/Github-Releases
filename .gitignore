@@ -2,3 +2,4 @@
 **/*.rs.bk
 /gh-releases
 sources.json
+config.json

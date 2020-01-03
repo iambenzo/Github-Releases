@@ -3,6 +3,8 @@ use std::io::prelude::*;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
+use crate::config;
+
 use failure::format_err;
 use failure::Error;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -25,7 +27,8 @@ fn create_progress_bar(msg: &str, length: u64) -> ProgressBar {
 }
 
 pub fn download_file(repo: &str, url: &str, file_name: &str) -> Result<(String, usize), Error> {
-    let mut download_location: PathBuf = PathBuf::from(r"./gh-releases/");
+    let config = config::Config::new();
+    let mut download_location: PathBuf = PathBuf::from(config.get_release_dir());
     download_location.push(Path::new(repo));
 
     if !download_location.exists() {

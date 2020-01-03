@@ -107,7 +107,7 @@ fn main() {
         // println!("install_script: {}", &install_script);
 
         let repo = matches.value_of("repo").unwrap();
-        // println!("Downloading {}", &repo);
+        println!("Installing {}...", &repo);
         if let Err(e) = ghr::install(
             &repo,
             pre_release,
@@ -121,7 +121,7 @@ fn main() {
     }
 
     if let Some(_matches) = matches.subcommand_matches("update") {
-        // println!("Updating sources!");
+        println!("Updating sources...");
         if let Err(e) = ghr::update() {
             eprintln!("{}", e);
             std::process::exit(1);
@@ -130,7 +130,7 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("remove") {
         let repo = matches.value_of("repo").unwrap();
-        println!("Removing {}", &repo);
+        println!("Removing {}...", &repo);
         if let Err(e) = ghr::remove(&repo) {
             eprintln!("{}", e);
             std::process::exit(1);

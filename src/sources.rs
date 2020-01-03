@@ -43,15 +43,13 @@ impl Sources {
     }
 
     pub fn list(&mut self) -> Result<Vec<String>, Error> {
-        let mut repos: Vec<String> = Vec::new();
-        self.sources.keys().for_each(|repo| {
-            repos.push(format!(
-                "{} -> {}",
-                repo.to_string(),
-                self.sources.get(repo).unwrap().latest_release.tag_name
-            ))
-        });
-        Ok(repos)
+        Ok(self
+            .sources
+            .iter()
+            .map(|(repo, source)| {
+                format!("{} -> {}", repo.to_string(), source.latest_release.tag_name)
+            })
+            .collect())
     }
 
     pub fn add_source(&mut self, repo: &str, source: Source) -> Result<(), Error> {
