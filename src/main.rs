@@ -4,7 +4,7 @@ use clap::{App, Arg, SubCommand};
 fn main() {
     let matches = App::new("GitHub Releases (GHR)")
         .version("0.1.0")
-        .author("iAmBenzo")
+        .author("Ben Burbage <ben@iambenzo.com>")
         .about("Perform installations and updates from GitHub releases.")
         .subcommand(
             SubCommand::with_name("install")
@@ -13,7 +13,7 @@ fn main() {
                 .author("Ben Burbage <ben@iambenzo.com>")
                 .arg(
                     Arg::with_name("repo")
-                        .help("GitHub Repository in quotes e.g. \"iambenzo\\vscode-theme-nyx\"")
+                        .help("GitHub Repository in quotes e.g. \"iambenzo/vscode-theme-nyx\"")
                         .index(1)
                         .required(true),
                 )
@@ -66,7 +66,7 @@ fn main() {
                 .author("Ben Burbage <ben@iambenzo.com>")
                 .arg(
                     Arg::with_name("repo")
-                        .help("GitHub Repository in quotes e.g. \"iambenzo\\vscode-theme-nyx\"")
+                        .help("GitHub Repository in quotes e.g. \"iambenzo/vscode-theme-nyx\"")
                         .index(1)
                         .required(true),
                 )
