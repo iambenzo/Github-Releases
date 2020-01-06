@@ -1,6 +1,6 @@
+use crate::config;
 use std::fs::remove_file;
 use std::path::{Path, PathBuf};
-use crate::config;
 
 pub fn gen_filename(repo: &str, url: &str) -> String {
     let app_name = repo.split("/").last().unwrap();

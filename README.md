@@ -28,7 +28,9 @@ Ghr will keep a note of the latest downloaded zipball, so that when you run `upd
 
 Naturally, should you decide that you no longer like the product of a repository, you can `remove` it from ghr and it'll no longer be tracked.
 
-### Configuration
+> All downloads will appear in a `gh-releases` folder in your home directory.
+
+<!-- ### Configuration
 
 Right now there isn't a means to configure the application via it's interface. However, you can create a file named `config.json` in the same directory as the executable and it will be read.
 
@@ -42,7 +44,7 @@ Here is an example:
 }
 ```
 
-There is only the `release_dir` configuration available at this point - the program defaults to a directory named `gh-releases`, which will be created in the same directory as the executable.
+There is only the `release_dir` configuration available at this point - the program defaults to a directory named `gh-releases`, which will be created in the same directory as the executable. -->
 
 ## Slightly Sexy Features
 

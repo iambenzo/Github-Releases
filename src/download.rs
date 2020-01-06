@@ -30,6 +30,7 @@ pub fn download_file(repo: &str, url: &str, file_name: &str) -> Result<(String, 
     let config = config::Config::new();
     let mut download_location: PathBuf = PathBuf::from(config.get_release_dir());
     download_location.push(Path::new(repo));
+    println!("Download Location: {}", download_location.to_str().unwrap());
 
     if !download_location.exists() {
         fs::create_dir_all(&download_location)?;
@@ -37,7 +38,6 @@ pub fn download_file(repo: &str, url: &str, file_name: &str) -> Result<(String, 
 
     download_location.push(file_name);
 
-    // println!("Download Location: {}", download_location.to_str().unwrap());
 
     if download_location.exists() {
         println!("File already exists, skipping download.");

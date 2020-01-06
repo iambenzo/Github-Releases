@@ -17,7 +17,13 @@ impl Sources {
     pub fn new() -> Sources {
         let sources: HashMap<String, Source>;
         let source_json = || -> Result<HashMap<String, Source>, Error> {
-            let sources_file = fs::read_to_string("sources.json")?;
+            // let sources_file = fs::read_to_string("sources.json")?;
+            let file_name = match dirs::home_dir() {
+                Some(x) => format!("{}/gh-releases/sources.json", x.to_str().unwrap()),
+                None => String::from("sources.json"),
+            };
+    
+            let sources_file = fs::read_to_string(file_name)?;
             let json: Sources = serde_json::from_str(&sources_file)?;
             Ok(json.sources)
         };
@@ -34,7 +40,13 @@ impl Sources {
     pub fn save(&self) -> Result<(), Error> {
         let output = serde_json::to_string(self)?;
         let output_bytes = output.as_bytes();
-        let mut sources_file = fs::File::create("sources.json")?;
+        // let mut sources_file = fs::File::create("sources.json")?;
+        let file_name = match dirs::home_dir() {
+            Some(x) => format!("{}/gh-releases/sources.json", x.to_str().unwrap()),
+            None => String::from("sources.json"),
+        };
+
+        let mut sources_file = fs::File::create(file_name)?;
 
         match sources_file.write(output_bytes) {
             Ok(_n) => Ok(()),
